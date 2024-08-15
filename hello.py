@@ -46,6 +46,14 @@ class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+def send_simple_message():
+  	return requests.post(
+  		"https://api.mailgun.net/v3/sandbox0f8afd02239c4afb8bfafeb2c57bbc09.mailgun.org/messages",
+  		auth=("api", "8e04b44755e90dc036b42b1b8b818218-911539ec-9b77b8fb"),
+  		data={"from": "Excited User <mailgun@sandbox0f8afd02239c4afb8bfafeb2c57bbc09.mailgun.org>",
+  			"to": "baldavia.marcelo@aluno.ifsp.edu.br",
+  			"subject": "Hello",
+  			"text": "Testing some Mailgun awesomeness!"})
 
 @app.shell_context_processor
 def make_shell_context():
@@ -72,8 +80,10 @@ def index():
             db.session.add(user)
             db.session.commit()
             session['known'] = False
+            send_simple_message()
         else:
             session['known'] = True
+            send_simple_message()
         session['name'] = form.name.data
         return redirect(url_for('index'))
     return render_template('index.html', form=form, name=session.get('name'),
